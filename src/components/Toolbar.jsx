@@ -1,13 +1,19 @@
 import React, { useRef } from 'react';
+import { PALETTE } from '../lib/colors';
 
-const COLORS = ['#0a0a0a', '#1aa05a', '#7c3aed', '#e85d1f', '#0891b2', '#d4264c'];
 const BRUSHES = [
-  { size: 3,  label: 'S' },
-  { size: 7,  label: 'M' },
+  { size: 3, label: 'S' },
+  { size: 7, label: 'M' },
   { size: 16, label: 'L' },
 ];
 
-export default function Toolbar({ color, brushSize, onColor, onBrush, onClear }) {
+const BOMBS = [
+  { type: 'ink',     icon: '💥', label: 'Ink bomb' },
+  { type: 'erase',   icon: '⊘',  label: 'Erase bomb' },
+  { type: 'rainbow', icon: '🌈', label: 'Rainbow bomb' },
+];
+
+export default function Toolbar({ color, brushSize, onColor, onBrush, onClear, onBomb, connected }) {
   const customRef = useRef(null);
 
   return (
@@ -15,54 +21,54 @@ export default function Toolbar({ color, brushSize, onColor, onBrush, onClear })
       <div className="panel-title">Brush</div>
 
       <div className="swatch-row">
-        {COLORS.map((c) => (
-          <button
-            key={c}
-            type="button"
+        {PALETTE.map((c) => (
+          <button key={c} type="button"
             className={'swatch' + (color === c ? ' active' : '')}
             style={{ background: c }}
             onClick={() => onColor(c)}
             aria-label={c}
           />
         ))}
-        <button
-          type="button"
-          className={'swatch custom' + (!COLORS.includes(color) ? ' active' : '')}
+        <button type="button"
+          className={'swatch custom' + (!PALETTE.includes(color) ? ' active' : '')}
           onClick={() => customRef.current?.click()}
-          title="Custom colour"
-        >
-          <input
-            ref={customRef}
-            type="color"
-            value={color}
-            onChange={(e) => onColor(e.target.value)}
-          />
+          title="Custom colour">
+          <input ref={customRef} type="color" value={color}
+            onChange={(e) => onColor(e.target.value)} />
         </button>
       </div>
 
-      <div className="brush-row">
+      <div className="brush-row" style={{ marginBottom: 14 }}>
         {BRUSHES.map(({ size, label }) => {
-          const dim = size + 16;
+          const dim = size + 18;
           return (
-            <button
-              key={size}
-              type="button"
+            <button key={size} type="button"
               className={'brush-btn' + (brushSize === size ? ' active' : '')}
               style={{ width: dim, height: dim }}
               onClick={() => onBrush(size)}
-              aria-label={`Brush ${label}`}
-            >
+              aria-label={`Brush ${label}`}>
               <span className="brush-dot" style={{ width: size, height: size }} />
             </button>
           );
         })}
       </div>
 
-      <div style={{ marginTop: 14 }}>
-        <button type="button" className="btn btn-danger btn-full" onClick={onClear}>
-          Clear canvas
-        </button>
-      </div>
+      <button type="button" className="btn btn-danger btn-full" onClick={onClear}>
+        Clear canvas
+      </button>
+
+      {connected && (
+        <div className="bomb-row">
+          {BOMBS.map(({ type, icon, label }) => (
+            <button key={type} type="button"
+              className="btn btn-secondary bomb-btn"
+              onClick={() => onBomb(type)}
+              title={label}>
+              {icon}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

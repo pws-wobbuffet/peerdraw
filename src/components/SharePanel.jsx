@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const PRIVQR = 'https://pws-wobbuffet.github.io/privqr/';
 
-export default function SharePanel({ status, roomUrl }) {
+export default function SharePanel({ status, roomUrl, myName, peerName }) {
   const [copied, setCopied] = useState(false);
 
   const copy = () => {
@@ -12,20 +12,18 @@ export default function SharePanel({ status, roomUrl }) {
     });
   };
 
-  const privqrUrl = roomUrl
-    ? `${PRIVQR}?url=${encodeURIComponent(roomUrl)}`
-    : null;
+  const privqrUrl = roomUrl ? `${PRIVQR}?url=${encodeURIComponent(roomUrl)}` : null;
 
   const statusInfo = {
-    idle:         { dot: '',      label: 'No session' },
+    entry:        { dot: '',      label: 'Not connected' },
     hosting:      { dot: 'amber', label: 'Waiting for peer…' },
     joining:      { dot: 'amber', label: 'Connecting…' },
-    connected:    { dot: 'green', label: '▣ Connected' },
+    connected:    { dot: 'green', label: peerName ? `▣ ${peerName} joined` : '▣ Connected' },
     disconnected: { dot: 'red',   label: 'Peer disconnected' },
   }[status] ?? { dot: '', label: status };
 
   return (
-    <div className="panel" style={{ flex: 1 }}>
+    <div className="panel">
       <div className="panel-title">Session</div>
 
       <div className="status-badge">
@@ -34,22 +32,17 @@ export default function SharePanel({ status, roomUrl }) {
         {status === 'joining' && <span className="spinner" style={{ width: 12, height: 12, marginLeft: 4 }} />}
       </div>
 
-      {roomUrl && status !== 'idle' && (
+      {roomUrl && status !== 'entry' && (
         <>
           <div className="url-box">
             <b>Room link:</b><br />
             {roomUrl}
           </div>
-          <div className="btn-row" style={{ marginBottom: 10 }}>
+          <div className="btn-row">
             <button type="button" className="btn btn-secondary" onClick={copy}>
               {copied ? '✓ Copied' : 'Copy link'}
             </button>
-            <a
-              href={privqrUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-secondary"
-            >
+            <a href={privqrUrl} target="_blank" rel="noopener noreferrer" className="btn btn-secondary">
               Make QR →
             </a>
           </div>
@@ -57,11 +50,8 @@ export default function SharePanel({ status, roomUrl }) {
       )}
 
       {status === 'disconnected' && (
-        <button
-          type="button"
-          className="btn btn-secondary btn-full"
-          onClick={() => window.location.reload()}
-        >
+        <button type="button" className="btn btn-secondary btn-full" style={{ marginTop: 10 }}
+          onClick={() => window.location.reload()}>
           Reload
         </button>
       )}
