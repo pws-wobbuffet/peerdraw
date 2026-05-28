@@ -43,7 +43,8 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  max-height: 100vh;
+  height: 100dvh; /* accounts for mobile browser chrome */
+  max-height: 100dvh;
   overflow: hidden;
 }
 
@@ -130,10 +131,81 @@ body {
   background: var(--paper);
 }
 
+/* ===== Mobile tab bar (hidden on desktop) ===== */
+.mobile-tabs {
+  display: none;
+  flex-shrink: 0;
+  border-bottom: var(--border-w) solid var(--line);
+  background: var(--paper);
+}
+.mobile-tab-btn {
+  flex: 1;
+  appearance: none;
+  background: transparent;
+  border: none;
+  border-right: var(--border-w) solid var(--line);
+  padding: 10px 6px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  color: var(--fg-soft);
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+.mobile-tab-btn:last-child { border-right: none; }
+.mobile-tab-btn.active { color: var(--accent); background: color-mix(in oklab, var(--accent) 10%, var(--paper)); }
+.mob-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+}
+
+/* Panel groups: transparent pass-through on desktop */
+.panel-group { display: contents; }
+
+/* ===== Mobile breakpoint ===== */
 @media (max-width: 700px) {
-  .main { flex-direction: column; }
-  .canvas-wrap { border-right: none; border-bottom: var(--border-w) solid var(--line); }
-  .sidebar { width: 100%; flex-direction: row; overflow-x: auto; overflow-y: hidden; }
+  .topbar { padding: 8px 12px; }
+  /* Name pills in topbar eat too much space on mobile */
+  .name-pills { display: none; }
+
+  .main { flex-direction: column; overflow: hidden; }
+
+  /* Canvas gets a fixed slice of the screen */
+  .canvas-col { height: 48dvh; flex: 0 0 48dvh; }
+  .canvas-wrap {
+    height: 100%;
+    border-right: none;
+    border-bottom: var(--border-w) solid var(--line);
+  }
+
+  /* Sidebar fills the rest of the screen */
+  .sidebar {
+    width: 100%;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  /* Show the mobile tab bar */
+  .mobile-tabs { display: flex; }
+
+  /* Panel groups: only the active one is visible */
+  .panel-group { display: none; }
+  .panel-group.mob-active {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
 }
 
 .panel {

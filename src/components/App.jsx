@@ -458,6 +458,9 @@ export default function App() {
   const activeColor = mode === 'war' ? (war?.myColor || color) : color;
   const cursorTextColor = isLight(peerColor) ? '#0a0a0a' : '#ffffff';
 
+  // Mobile tab (only affects layout on small screens via CSS)
+  const [mobileTab, setMobileTab] = useState('tools');
+
   return (
     <div className="app">
       <header className="topbar">
@@ -550,38 +553,59 @@ export default function App() {
         </div>
 
         <aside className="sidebar">
-          {mode === 'draw' && (
-            <Toolbar
-              color={color}
-              brushSize={brushSize}
-              onColor={setColor}
-              onBrush={setBrushSize}
-              onClear={handleClear}
-              onBomb={fireBomb}
-              connected={isConnected}
-            />
-          )}
-          {mode === 'pictionary' && (
-            <PictionaryPanel
-              game={game}
-              myName={myName}
-              peerName={peerName}
-              isHost={isHostRef.current}
-              onAbandon={abandonGame}
-            />
-          )}
-          {mode === 'war' && (
-            <ColorWarPanel
-              war={war}
-              myName={myName}
-              peerName={peerName}
-              onBomb={fireBomb}
-              isHost={isHostRef.current}
-              onAbandon={abandonWar}
-            />
-          )}
+          {/* Mobile tab bar — hidden on desktop via CSS */}
+          <div className="mobile-tabs">
+            <button className={`mobile-tab-btn${mobileTab === 'tools' ? ' active' : ''}`}
+              onClick={() => setMobileTab('tools')}>
+              {mode === 'pictionary' ? '🎨 Game' : mode === 'war' ? '⚔️ War' : '✏️ Draw'}
+            </button>
+            <button className={`mobile-tab-btn${mobileTab === 'session' ? ' active' : ''}`}
+              onClick={() => setMobileTab('session')}>
+              🔗 Session
+              {status === 'connected' && <span className="mob-dot" />}
+            </button>
+            <button className={`mobile-tab-btn${mobileTab === 'chat' ? ' active' : ''}`}
+              onClick={() => setMobileTab('chat')}>
+              💬 Chat
+            </button>
+          </div>
 
-          {mode === 'draw' && (
+          {/* Group 1: tools / game panels */}
+          <div className={`panel-group${mobileTab === 'tools' ? ' mob-active' : ''}`}>
+            {mode === 'draw' && (
+              <Toolbar
+                color={color}
+                brushSize={brushSize}
+                onColor={setColor}
+                onBrush={setBrushSize}
+                onClear={handleClear}
+                onBomb={fireBomb}
+                connected={isConnected}
+              />
+            )}
+            {mode === 'pictionary' && (
+              <PictionaryPanel
+                game={game}
+                myName={myName}
+                peerName={peerName}
+                isHost={isHostRef.current}
+                onAbandon={abandonGame}
+              />
+            )}
+            {mode === 'war' && (
+              <ColorWarPanel
+                war={war}
+                myName={myName}
+                peerName={peerName}
+                onBomb={fireBomb}
+                isHost={isHostRef.current}
+                onAbandon={abandonWar}
+              />
+            )}
+          </div>
+
+          {/* Group 2: session / share */}
+          <div className={`panel-group${mobileTab === 'session' ? ' mob-active' : ''}`}>
             <SharePanel
               status={status}
               roomUrl={roomUrl}
@@ -591,15 +615,18 @@ export default function App() {
               onStartPictionary={startPictionary}
               onStartColorWar={startColorWar}
             />
-          )}
+          </div>
 
-          <ChatPanel
-            messages={messages}
-            myName={myName}
-            peerName={peerName}
-            onSend={sendChat}
-            connected={isConnected}
-          />
+          {/* Group 3: chat */}
+          <div className={`panel-group${mobileTab === 'chat' ? ' mob-active' : ''}`}>
+            <ChatPanel
+              messages={messages}
+              myName={myName}
+              peerName={peerName}
+              onSend={sendChat}
+              connected={isConnected}
+            />
+          </div>
         </aside>
       </div>
     </div>
