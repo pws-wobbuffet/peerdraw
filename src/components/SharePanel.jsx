@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const PRIVQR = 'https://pws-wobbuffet.github.io/privqr/';
 
-export default function SharePanel({ status, roomUrl, myName, peerName }) {
+export default function SharePanel({ status, roomUrl, myName, peerName, isHost, onStartPictionary, onStartColorWar }) {
   const [copied, setCopied] = useState(false);
 
   const copy = () => {
@@ -47,6 +47,17 @@ export default function SharePanel({ status, roomUrl, myName, peerName }) {
             </a>
           </div>
         </>
+      )}
+
+      {status === 'connected' && isHost && (
+        <div className="btn-row" style={{ marginTop: 10 }}>
+          <button type="button" className="btn btn-secondary" onClick={onStartPictionary}>
+            🎨 Pictionary
+          </button>
+          <button type="button" className="btn btn-secondary" onClick={onStartColorWar}>
+            ⚔️ Color War
+          </button>
+        </div>
       )}
 
       {status === 'disconnected' && (

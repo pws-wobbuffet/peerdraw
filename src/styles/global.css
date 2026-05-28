@@ -512,3 +512,105 @@ body {
   box-shadow: 2px 2px 0 var(--shadow);
 }
 .chat-send-btn:disabled { opacity: 0.4; pointer-events: none; }
+
+/* ===== Game overlay ===== */
+.game-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--fg) 85%, transparent);
+  z-index: 50;
+  pointer-events: none;
+}
+.game-overlay-text {
+  font-family: "Archivo Black", sans-serif;
+  font-size: clamp(40px, 8vw, 90px);
+  letter-spacing: -0.04em;
+  color: var(--bg);
+  line-height: 1;
+  text-align: center;
+}
+.game-overlay-sub {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 14px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--bg);
+  opacity: 0.7;
+  margin-top: 12px;
+  text-align: center;
+}
+
+/* ===== Game panel (Pictionary + Color War sidebar) ===== */
+.game-panel { display: flex; flex-direction: column; gap: 8px; }
+
+.game-timer-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  overflow: hidden;
+  background: var(--bg);
+  border: 1px solid color-mix(in oklab, var(--line) 40%, transparent);
+}
+.game-timer-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.9s linear;
+}
+.game-timer-num {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.game-role {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-soft);
+}
+.game-word {
+  font-family: "Archivo Black", sans-serif;
+  font-size: 26px;
+  letter-spacing: -0.02em;
+  color: var(--accent);
+  word-break: break-word;
+}
+.game-word-hint {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--fg-soft);
+  font-style: italic;
+}
+.game-score {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 13px;
+  font-weight: 700;
+}
+.game-score-sep { color: var(--fg-soft); }
+
+/* ===== Color War ===== */
+.war-bar {
+  display: flex;
+  height: 20px;
+  border: var(--border-w) solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: 2px 2px 0 var(--shadow);
+}
+.war-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  margin-top: 4px;
+}
+.war-color-mine { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }

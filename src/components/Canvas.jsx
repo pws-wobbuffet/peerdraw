@@ -1,7 +1,14 @@
-import React, { useRef, useEffect, useCallback } from 'react';
+import React, { useRef, useEffect, useCallback, forwardRef } from 'react';
 
-export default function Canvas({ color, brushSize, remoteQueue, onEvent, onCursor, connected }) {
+const Canvas = forwardRef(function Canvas({ color, brushSize, remoteQueue, onEvent, onCursor, connected }, outerRef) {
   const canvasRef = useRef(null);
+
+  // Merge internal and forwarded refs so App can read the canvas element
+  const setCanvasRef = useCallback((el) => {
+    canvasRef.current = el;
+    if (typeof outerRef === 'function') outerRef(el);
+    else if (outerRef) outerRef.current = el;
+  }, [outerRef]);
   const ctxRef = useRef(null);
   const prevRef = useRef(null);
   const rafRef = useRef(null);
@@ -187,7 +194,7 @@ export default function Canvas({ color, brushSize, remoteQueue, onEvent, onCurso
 
   return (
     <canvas
-      ref={canvasRef}
+      ref={setCanvasRef}
       style={{ display: 'block', width: '100%', height: '100%', touchAction: 'none' }}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -195,4 +202,6 @@ export default function Canvas({ color, brushSize, remoteQueue, onEvent, onCurso
       onPointerLeave={handlePointerUp}
     />
   );
-}
+});
+
+export default Canvas;
