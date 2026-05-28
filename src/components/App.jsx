@@ -96,6 +96,8 @@ export default function App() {
   const warTimerRef = useRef(null);
   const warTickRef = useRef(null);
   const [overlay, setOverlay] = useState(null);
+  // Always-current ref to round-advance logic, avoids circular deps in startGameTimer
+  const onDrawerTimeoutRef = useRef(null);
 
   const switchMode = (m) => { setMode(m); modeRef.current = m; };
   const updateGame = (g) => { setGame(g); gameRef.current = g; };
@@ -132,11 +134,12 @@ export default function App() {
         if (t <= 0) {
           clearInterval(gameTimerRef.current);
           gameTimerRef.current = null;
-          // Drawer sends game_end when their timer expires
+          // Drawer sends game_end and schedules next round on expiry
           if (g.role === 'drawer') {
             sendEvent({ t: 'game_end', correct: false, word: g.word,
               score: g.score, round: g.round, totalRounds: g.totalRounds });
             showOverlay("TIME'S UP!", `The word was: ${g.word}`);
+            setTimeout(() => onDrawerTimeoutRef.current?.(), 3000);
           }
           return { ...g, timeLeft: 0 };
         }
@@ -182,6 +185,16 @@ export default function App() {
     showOverlay(result, `Score: ${myS} — ${peerS}`, 4000);
     setTimeout(() => { switchMode('draw'); updateGame(null); }, 4500);
   }, [clearGameTimer, showOverlay]);
+
+  // Keep onDrawerTimeoutRef current so startGameTimer can advance rounds without circular deps
+  useEffect(() => {
+    onDrawerTimeoutRef.current = () => {
+      const g = gameRef.current;
+      if (!g) return;
+      if (g.round < g.totalRounds) startRound(g.round + 1, g.score);
+      else endPictionary(g.score);
+    };
+  });
 
   const startPictionary = useCallback(() => {
     if (!isHostRef.current) return;
@@ -261,8 +274,8 @@ export default function App() {
   // ── Bombs ─────────────────────────────────────────────────────────────
   const fireBomb = useCallback((type) => {
     if (mode === 'war') {
-      setWar(w => w && w.bombs > 0 ? { ...w, bombs: w.bombs - 1 } : w);
-      if (warRef.current?.bombs <= 0) return;
+      if (!warRef.current || warRef.current.bombs <= 0) return;
+      updateWar({ ...warRef.current, bombs: warRef.current.bombs - 1 });
     }
     const myWarColor = warRef.current?.myColor || color;
     const evt = type === 'ink'
@@ -339,19 +352,16 @@ export default function App() {
         clearGameTimer();
         if (evt.round === 0) { switchMode('draw'); updateGame(null); return; } // abandoned
         if (evt.correct) {
-          // Peer confirmed a correct guess — I'm the guesser, I got the point
           const g = gameRef.current;
           if (g) {
-            const newScore = [...g.score];
-            if (g.role === 'guesser') newScore[isHostRef.current ? 0 : 1]++;
-            else newScore[isHostRef.current ? 1 : 0]++;
-            updateGame({ ...g, score: newScore, timeLeft: 0 });
+            // Use the authoritative score the drawer sent; avoids local recomputation drift
+            updateGame({ ...g, score: evt.score || g.score, timeLeft: 0 });
             if (g.role === 'guesser') showOverlay('YOU GOT IT! 🎉', `Word was: ${evt.word}`);
             else showOverlay(`${peerNameRef.current} guessed it!`, `Word was: ${evt.word}`);
           }
         } else {
           showOverlay("TIME'S UP!", `Word was: ${evt.word || '?'}`);
-          setGame(g => g ? { ...g, timeLeft: 0 } : g);
+          setGame(g => g ? { ...g, score: evt.score || g.score, timeLeft: 0 } : g);
         }
         return;
       }
