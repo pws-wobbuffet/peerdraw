@@ -1,0 +1,20 @@
+{
+  "name": "peerdraw",
+  "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@11.4.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "peerjs": "^1.5.4"
+  },
+  "devDependencies": {
+    "@astrojs/react": "^5.0.6",
+    "astro": "^6.4.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  }
+}
